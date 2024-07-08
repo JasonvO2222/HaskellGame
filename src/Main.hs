@@ -11,7 +11,7 @@ import State
 import Controls
 import Tick
 import Grid
-import Player
+import Moveable
 
 main :: IO ()
 main = do
@@ -22,8 +22,9 @@ main = do
 
    cage <- readFile "src/levels/cage.txt"
    let raster = Grid.makeRaster (lines cage)
-   let p = Player.Player {point = (10, 10), direction = NeutralD, speed = 0.2, pressed = []}
-   let state = State.initState pictures raster p (listBarriers raster)
+   let player = Moveable.Moveable {point = (10, 10), speed = 0.2, dirs = [], objtype = Player}
+
+   let state = State.initState pictures raster player (listBarriers raster)
 
 
    playIO (InWindow "Game" (400, 400) (0, 0))

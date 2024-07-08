@@ -8,7 +8,7 @@ import System.IO
 import Control.Exception (catch, IOException)
 
 import State
-import Player
+import Moveable
 import Grid
 
 
@@ -19,18 +19,18 @@ input e gstate = do
 
 handleInput :: Event -> GameState -> GameState
 handleInput (EventKey (Char c) Down _ _) gstate --if a key is pressed down, add it to list of pressed keys
-   | c == 'w' = gstate { player = addKey (p) (pressed p) UpK}
-   | c == 's' = gstate { player = addKey (p) (pressed p) DownK}
-   | c == 'd' = gstate { player = addKey (p) (pressed p) RightK}
-   | c == 'a' = gstate { player = addKey (p) (pressed p) LeftK}
+   | c == 'w' = gstate { player = addDir p UpD}
+   | c == 's' = gstate { player = addDir p DownD}
+   | c == 'd' = gstate { player = addDir p RightD}
+   | c == 'a' = gstate { player = addDir p LeftD}
    | otherwise = gstate
             where 
                 p = player gstate
 handleInput (EventKey (Char c) Up _ _) gstate --if a key is released up, remove from list of pressed keys
-   | c == 'w' = gstate { player = removeKey (p) (pressed p) UpK}
-   | c == 's' = gstate { player = removeKey (p) (pressed p) DownK}
-   | c == 'd' = gstate { player = removeKey (p) (pressed p) RightK}
-   | c == 'a' = gstate { player = removeKey (p) (pressed p) LeftK}
+   | c == 'w' = gstate { player = removeDir p UpD}
+   | c == 's' = gstate { player = removeDir p DownD}
+   | c == 'd' = gstate { player = removeDir p RightD}
+   | c == 'a' = gstate { player = removeDir p LeftD}
    | otherwise = gstate
             where
                 p = player gstate

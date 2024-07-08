@@ -1,6 +1,6 @@
 module Grid where
 
-data Direction = RightD | LeftD | UpD | DownD | NeutralD deriving (Show, Eq)
+data Dir = RightD | LeftD | UpD | DownD deriving (Show, Eq)
 
 type Point = (Float, Float)
 

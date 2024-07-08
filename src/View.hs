@@ -4,7 +4,7 @@ import Graphics.Gloss
 
 import State
 import Grid
-import Player
+import Moveable
 
 
 translateP :: Picture -> Grid.Point -> (Float, Float) -> Picture --translate picture to its screen location
@@ -19,7 +19,7 @@ view gstate = do
 
    return $ pictures (getEnvironment ++ [getPlayer]) -- returns list of pictures
 
-viewPlayer :: Picture -> Player -> Picture
+viewPlayer :: Picture -> Moveable -> Picture
 viewPlayer p player = translateP p (point player) (32, 32)
 
 

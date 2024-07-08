@@ -3,14 +3,14 @@ module State where
 
 import Graphics.Gloss
 import Grid
-import Player
+import Moveable
 
 
 data GameState = GameState {
       sprites :: [Picture],
       raster :: Raster,
-      player :: Player,
+      player :: Moveable,
       barriers :: [Tile]}
 
-initState :: [Picture] -> Raster -> Player -> [Tile] -> GameState
-initState s r p t = GameState {sprites = s, raster = r, player = p, barriers = t}
+initState :: [Picture] -> Raster -> Moveable -> [Tile] -> GameState
+initState s r m t = GameState {sprites = s, raster = r, player = m, barriers = t}

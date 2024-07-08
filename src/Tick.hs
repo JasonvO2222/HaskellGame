@@ -1,19 +1,18 @@
 module Tick where
 
 import State
-import Player
+import Moveable
 
 
 
---step func
-step :: Float -> GameState -> IO (GameState)
+step :: Float -> GameState -> IO (GameState) -- runs every render frame
 step seconds gstate = do
     updatedPlayer <- updatePlayer (player gstate)
-    return (gstate {player = updatedPlayer})
+    return (gstate {player = updatedPlayer}) -- returns new gamestate after updating all parameters
 
 
 
-updatePlayer :: Player -> IO (Player)
+updatePlayer :: Moveable -> IO (Moveable)
 updatePlayer player = do
-    let updatedPoint = movePlayer player 
+    let updatedPoint = moveObject player 
     return (player {point = updatedPoint})
