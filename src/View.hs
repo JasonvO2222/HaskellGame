@@ -3,10 +3,25 @@ module View where
 import Graphics.Gloss
 
 import State
+import Grid
+import Player
+
+
+translateP :: Picture -> Grid.Point -> (Float, Float) -> Picture
+translateP p (x, y) (sx, sy) = translate (x*20 - 200 + 0.5 * sx) (y*20 - 200 + 0.5 * sy) p
 
 --viewing method
-view :: GameState -> IO Picture
+view :: GameState -> IO (Picture)
 view gstate = do
-   let background = sprites gstate!!0
-   let res = [background]
-   return $ pictures (res)
+   
+   let getEnvironment = map (viewEnvironment (head (sprites gstate))) (barriers gstate)
+   let getPlayer = viewPlayer ((sprites gstate)!!1) (player gstate)
+
+   return $ pictures (getPlayer : getEnvironment)
+
+viewPlayer :: Picture -> Player -> Picture
+viewPlayer p player = translateP p (point player) (32, 32)
+
+
+viewEnvironment :: Picture -> Tile -> Picture
+viewEnvironment p t = translateP p (fst t) (20, 20)

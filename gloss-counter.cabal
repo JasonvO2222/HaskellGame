@@ -13,4 +13,10 @@ executable gloss-counter
 						random
 	hs-source-dirs:		src
 	other-modules:		Player
+						Grid
+						State
+						View
+						Tick
+						Controls
+						Moveable
 	default-language:	Haskell2010
