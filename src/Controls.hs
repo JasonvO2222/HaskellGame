@@ -19,12 +19,19 @@ input e gstate = do
 
 handleInput :: Event -> GameState -> GameState
 handleInput (EventKey (Char c) Down _ _) gstate
-   | c == 'w' = gstate { player = changePlayerDir (player gstate) UpD}
-   | c == 's' = gstate { player = changePlayerDir (player gstate) DownD}
-   | c == 'd' = gstate { player = changePlayerDir (player gstate) RightD}
-   | c == 'a' = gstate { player = changePlayerDir (player gstate) LeftD}
-   | c == ' ' = gstate { player = changePlayerDir (player gstate) NeutralD}
+   | c == 'w' = gstate { player = addKey (p) (pressed p) UpK}
+   | c == 's' = gstate { player = addKey (p) (pressed p) DownK}
+   | c == 'd' = gstate { player = addKey (p) (pressed p) RightK}
+   | c == 'a' = gstate { player = addKey (p) (pressed p) LeftK}
    | otherwise = gstate
             where 
-                p =  point (player gstate)
+                p = player gstate
+handleInput (EventKey (Char c) Up _ _) gstate
+   | c == 'w' = gstate { player = removeKey (p) (pressed p) UpK}
+   | c == 's' = gstate { player = removeKey (p) (pressed p) DownK}
+   | c == 'd' = gstate { player = removeKey (p) (pressed p) RightK}
+   | c == 'a' = gstate { player = removeKey (p) (pressed p) LeftK}
+   | otherwise = gstate
+            where
+                p = player gstate
 handleInput _ gstate = gstate

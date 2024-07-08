@@ -18,5 +18,4 @@ executable gloss-counter
 						View
 						Tick
 						Controls
-						Moveable
 	default-language:	Haskell2010
