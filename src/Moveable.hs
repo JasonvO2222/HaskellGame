@@ -32,3 +32,7 @@ move s p k | k == UpD = (x, y + s)
            | otherwise = (x, y)
     where
         (x, y) = p
+
+
+makeMoveable :: Point -> Float -> ObjType -> Moveable
+makeMoveable p s t = Moveable {point = p, speed = s, objtype = t, dirs = []} 
