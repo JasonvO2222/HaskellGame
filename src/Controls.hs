@@ -18,7 +18,7 @@ input e gstate = do
     return (handleInput e gstate)
 
 handleInput :: Event -> GameState -> GameState
-handleInput (EventKey (Char c) Down _ _) gstate
+handleInput (EventKey (Char c) Down _ _) gstate --if a key is pressed down, add it to list of pressed keys
    | c == 'w' = gstate { player = addKey (p) (pressed p) UpK}
    | c == 's' = gstate { player = addKey (p) (pressed p) DownK}
    | c == 'd' = gstate { player = addKey (p) (pressed p) RightK}
@@ -26,7 +26,7 @@ handleInput (EventKey (Char c) Down _ _) gstate
    | otherwise = gstate
             where 
                 p = player gstate
-handleInput (EventKey (Char c) Up _ _) gstate
+handleInput (EventKey (Char c) Up _ _) gstate --if a key is released up, remove from list of pressed keys
    | c == 'w' = gstate { player = removeKey (p) (pressed p) UpK}
    | c == 's' = gstate { player = removeKey (p) (pressed p) DownK}
    | c == 'd' = gstate { player = removeKey (p) (pressed p) RightK}

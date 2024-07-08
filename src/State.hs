@@ -5,8 +5,6 @@ import Graphics.Gloss
 import Grid
 import Player
 
---data PictureL = PictureL { name :: String, bmp :: Picture} deriving (Show, Eq)
-
 
 data GameState = GameState {
       sprites :: [Picture],

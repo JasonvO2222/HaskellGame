@@ -7,7 +7,7 @@ import Grid
 import Player
 
 
-translateP :: Picture -> Grid.Point -> (Float, Float) -> Picture
+translateP :: Picture -> Grid.Point -> (Float, Float) -> Picture --translate picture to its screen location
 translateP p (x, y) (sx, sy) = translate (x*20 - 200 + 0.5 * sx) (y*20 - 200 + 0.5 * sy) p
 
 --viewing method
@@ -17,7 +17,7 @@ view gstate = do
    let getEnvironment = map (viewEnvironment (head (sprites gstate))) (barriers gstate)
    let getPlayer = viewPlayer ((sprites gstate)!!1) (player gstate)
 
-   return $ pictures (getPlayer : getEnvironment)
+   return $ pictures (getEnvironment ++ [getPlayer]) -- returns list of pictures
 
 viewPlayer :: Picture -> Player -> Picture
 viewPlayer p player = translateP p (point player) (32, 32)

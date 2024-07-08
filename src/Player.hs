@@ -20,13 +20,13 @@ removeKey p ks k = p {pressed = filt}
              filt = filter (/= k) ks
 
 
-movePlayer :: Player -> Point
+movePlayer :: Player -> Point -- extract information
 movePlayer p = iterateKeys (speed p) (point p) (pressed p)
 
-iterateKeys :: Float -> Point -> [Key] -> Point
+iterateKeys :: Float -> Point -> [Key] -> Point -- iterate over each key and fold results
 iterateKeys s p ks = foldl (move s) p ks
 
-move :: Float -> Point -> Key -> Point
+move :: Float -> Point -> Key -> Point -- move character in direction of key
 move s p k | k == UpK = (x, y + s)
            | k == DownK = (x, y - s)
            | k == RightK = (x + s, y)
