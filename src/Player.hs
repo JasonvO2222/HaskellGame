@@ -27,11 +27,11 @@ iterateKeys :: Float -> Point -> [Key] -> Point
 iterateKeys s p ks = foldl (move s) p ks
 
 move :: Float -> Point -> Key -> Point
-move s p k  | k == UpK = (x, y + s)
-          | k == DownK = (x, y - s)
-          | k == RightK = (x + s, y)
-          | k == LeftK = (x - s, y)
-          | otherwise = (x, y)
+move s p k | k == UpK = (x, y + s)
+           | k == DownK = (x, y - s)
+           | k == RightK = (x + s, y)
+           | k == LeftK = (x - s, y)
+           | otherwise = (x, y)
     where
         (x, y) = p
 
