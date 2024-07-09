@@ -1,8 +1,10 @@
 module Grid where
 
-data Dir = RightD | LeftD | UpD | DownD deriving (Show, Eq)
+data Dir = RightD | LeftD | UpD | DownD | BrakeD deriving (Show, Eq)
 
 type Point = (Float, Float)
+
+type Vector = (Float, Float)
 
 type Tile = (Point, Tiletype)
 
@@ -21,7 +23,7 @@ makeTile (f, c) | c == '#' = (f, Barrier)
                 | c == '-' = (f, Empty)
 
 merge :: Float -> (Float, Tiletype) -> Tile -- reorder information
-merge f (f2, t) = ((f, f2), t)
+merge y (x, t) = ((x, y), t)
 
 listBarriers :: Raster -> [Tile]
 listBarriers [] = []

@@ -8,7 +8,7 @@ import Moveable
 
 
 translateP :: Picture -> Grid.Point -> (Float, Float) -> Picture --translate picture to its screen location
-translateP p (x, y) (sx, sy) = translate (x*20 - 200 + 0.5 * sx) (y*20 - 200 + 0.5 * sy) p
+translateP p (x, y) (sx, sy) = translate (x*20 - 200 + 0.5 * sx) (200 - y*20 - 0.5 * sy) p
 
 --viewing method
 view :: GameState -> IO (Picture)

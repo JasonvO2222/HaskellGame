@@ -22,7 +22,7 @@ main = do
 
    cage <- readFile "src/levels/cage.txt"
    let raster = Grid.makeRaster (lines cage)
-   let player = makeMovable (10, 10) 0.2 Player
+   let player = makeMoveable (4, 4) 0.2 Player 0.4
 
    let state = State.initState pictures raster player (listBarriers raster)
 
