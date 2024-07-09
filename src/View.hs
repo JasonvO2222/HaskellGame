@@ -15,12 +15,12 @@ view :: GameState -> IO (Picture)
 view gstate = do
    
    let getEnvironment = map (viewEnvironment (head (sprites gstate))) (barriers gstate)
-   let getPlayer = viewPlayer ((sprites gstate)!!1) (player gstate)
+   let getPlayer = viewPlayer ((sprites gstate)!!0) (player gstate)
 
    return $ pictures (getEnvironment ++ [getPlayer]) -- returns list of pictures
 
 viewPlayer :: Picture -> Moveable -> Picture
-viewPlayer p player = translateP p (point player) (32, 32)
+viewPlayer p player = translateP p (point player) (20, 20)
 
 
 viewEnvironment :: Picture -> Tile -> Picture

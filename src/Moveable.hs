@@ -26,7 +26,7 @@ removeDir m d = m {dirs = filt}
 
 
 updateVector :: Moveable -> Vector -- extract information
-updateVector m = checkMaxSpeed (maxSpeed m) (iterateDirs (acceleration m) (vector m) (dirs m))
+updateVector m = checkMaxSpeed (maxSpeed m) (addGravity (iterateDirs (acceleration m) (vector m) (dirs m)))
 
 iterateDirs :: Float -> Vector -> [Dir] -> Vector -- iterate move over each Dir and fold results
 iterateDirs a p ks = foldl (newVec a) p ks
@@ -54,10 +54,8 @@ checkSpeed max f | f > max = max
                  | f < -(max) = -(max)
                  | otherwise = f
 
+addGravity :: Vector -> Vector
+addGravity (x, y) = (x, y + 0.2)
 
-
-moveObject :: Moveable -> Vector -> Point
-moveObject m v = (x + a, y + b)
-         where
-            (x, y) = point m
-            (a, b) = v
+moveObject :: Point -> Vector -> Point
+moveObject (x, y) (a, b) = (x + a, y + b)
