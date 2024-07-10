@@ -25,10 +25,7 @@ updatePlayer gstate r player = do
     --calculate corrected vector and new point
     (correctVector, newPoint) <- calcVectorPoint gstate step steps
 
-
-
-
-    return (player)
+    return (player {vector = correctVector, point = newPoint})
 
 findStepVector :: Float -> Vector -> Vector
 findStepVector steps (x, y) = (x * factor, y * factor)
@@ -80,6 +77,13 @@ handleHit lp [a, b, c] (x, y) xs l = (updateList lp newV l, newV)
                         newV = (-0.20 * x, -0.20 * y)
 handleHit lp [a, b] (x, y) xs l | (a == TL && b == TR) || (a == BL && b == BR) = (updateList lp (x, y * (-0.20)) l, (x, y * (-0.20)))
                                 | otherwise                                    = (updateList lp (x * (-0.20), y) l, (x * (-0.20), y))
+handleHit lp [a] (x, y) xs l | x /= 0 && y /= 0 = (updateList lp (greatestStays (x, y)) l, greatestStays (x, y))
+                             | x /= 0 = (updateList lp (x * (-0.20), y) l, (x * (-0.20), y))
+                             | y /= 0 = (updateList lp (x, (-0.20) *y) l, (x, (-0.20) * y))
+
+greatestStays :: Vector -> Vector
+greatestStays (x, y) | abs x > abs y = (x, y * (-0.20))
+                     | otherwise = (x * (-0.20), y)
 
 updateList :: Point -> Vector -> Float -> [(Float, Float)]
 updateList lp step count = newPointList
