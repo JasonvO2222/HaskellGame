@@ -13,14 +13,123 @@ step seconds gstate = do
 
 updatePlayer :: GameState -> Raster -> Moveable -> IO (Moveable)
 updatePlayer gstate r player = do
+
+    --first check overlap with static types and other moveables for each step along the vector
+
+    --find step vector based on set length
     let updatedVector = updateVector player
-    collide <- checkCollision r player updatedVector
-    let correctedVector = correctVector gstate collide updatedVector
+    let (x, y) = updatedVector
+    let steps = findFactor (sqrt(x*x + y*y))
+    let step = findStepVector steps (x, y)
 
-    let correctedPoint = correctPoint gstate collide (point player)
-    let updatedPoint = moveObject correctedPoint correctedVector
+    --calculate corrected vector and new point
+    (correctVector, newPoint) <- calcVectorPoint gstate step steps
 
-    return (player {point = updatedPoint, vector = correctedVector})
+
+
+
+    return (player)
+
+findStepVector :: Float -> Vector -> Vector
+findStepVector steps (x, y) = (x * factor, y * factor)
+                   where
+                         factor = 1 / steps
+
+findFactor :: Float -> Float
+findFactor 0 = 1
+findFactor f = iF(ceiling (f / 0.2))
+
+calcVectorPoint :: GameState -> Vector -> Float -> IO (Vector, Point)
+calcVectorPoint gstate step steps = do
+
+    let (dx, dy) = step
+    let (x, y) = point (player gstate)
+    let l = [1 .. steps]
+    let lm = map (\a -> (dx * a, dy * a)) l 
+    let newPointList = map (\(b, c) -> (b + x, c + y)) lm
+
+
+    (newStep, newPoint) <- iterateV (x, y) newPointList gstate step
+    let newVector = (steps * (fst newStep), steps * (snd newStep))
+    return (newVector, newPoint)
+
+iterateV :: Point -> [(Float, Float)] -> GameState -> Vector -> IO (Vector, Point)
+iterateV lastP [] _ step = do return (step, lastP)
+iterateV lastP l@(x:xs) gstate step = do
+    -- get corners
+    let corners = getTLTRBLBR x 
+
+    -- check if new point hits anything
+    let hitCorners = checkCorners (raster gstate) (selectCorners step corners)
+
+    -- if not go onto next point
+    -- if it does, go back one point, construct new vector, calc new pointslist, go over them
+    iterateHelper l (x, lastP) xs gstate step hitCorners
+
+iterateHelper :: [(Float, Float)] -> (Point, Point) -> [(Float, Float)] -> GameState -> Vector -> [CornerT] -> IO (Vector, Point)
+iterateHelper l (x, lastP) xs gstate step hitCorners | null hitCorners = iterateV x xs gstate step
+                                                     | otherwise = iterateV lastP newxs gstate newStep
+                                        where
+                  (newxs, newStep) = handleHit lastP hitCorners step xs (iF (length l))
+
+
+
+handleHit :: Point -> [CornerT] -> Vector -> [(Float, Float)] -> Float -> ([(Float, Float)], Vector)
+handleHit lp [a, b, c] (x, y) xs l = (updateList lp newV l, newV)
+                     where
+                        newV = (-0.20 * x, -0.20 * y)
+handleHit lp [a, b] (x, y) xs l | (a == TL && b == TR) || (a == BL && b == BR) = (updateList lp (x, y * (-0.20)) l, (x, y * (-0.20)))
+                                | otherwise                                    = (updateList lp (x * (-0.20), y) l, (x * (-0.20), y))
+
+updateList :: Point -> Vector -> Float -> [(Float, Float)]
+updateList lp step count = newPointList
+                      where
+                         l = [1 .. count]
+                         lm = map (\a -> ((fst step) * a, (snd step) * a)) l
+                         newPointList = map (\(b, c) -> (b + (fst lp), c + (snd lp))) lm
+
+
+checkCorners :: Raster -> [(Point, CornerT)] -> [CornerT]
+checkCorners _ [] = []
+checkCorners r ps = map snd (filter (\(p, c) -> checkRaster (round (fst p), round (snd p))) ps)
+                where
+                    checkRaster (column, row) = snd (r!!row!!column) == Barrier
+
+selectCorners :: Vector -> ((Point, CornerT), (Point, CornerT), (Point, CornerT), (Point, CornerT)) -> [(Point, CornerT)]
+selectCorners (x, y) (tl, tr, bl, br) | x > 0 && y > 0 = [tr, bl, br]
+                                      | x < 0 && y < 0 = [tl, tr, bl]
+                                      | x < 0 && y > 0 = [tl, bl, br]
+                                      | x > 0 && y < 0 = [tl, tr, br]
+                                      | x > 0 = [tr, br]
+                                      | x < 0 = [tl, bl]
+                                      | y > 0 = [bl, br]
+                                      | y < 0 = [tl, tr]
+                                      | otherwise = []
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 checkCollision :: Raster -> Moveable -> Vector -> IO (Bool, Bool, Bool)
 checkCollision r m v = do

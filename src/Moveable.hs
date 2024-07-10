@@ -4,6 +4,8 @@ import Grid
 
 data ObjType = Player | Other deriving (Show, Eq)
 
+data CornerT = TL | TR | BL | BR deriving (Show, Eq)
+
 data Moveable = Moveable { point :: Point,
                            acceleration :: Float,
                            dirs :: [Dir],
@@ -59,3 +61,7 @@ addGravity (x, y) = (x, y + 0.2)
 
 moveObject :: Point -> Vector -> Point
 moveObject (x, y) (a, b) = (x + a, y + b)
+
+getTLTRBLBR :: Point -> ((Point, CornerT), (Point, CornerT), (Point, CornerT), (Point, CornerT))
+getTLTRBLBR (x, y) = (((x - 0.5, y - 0.5), TL), ((x + 0.5, y - 0.5), TR), ((x - 0.5, y + 0.5), BL), ((x + 0.5, y + 0.5), BR))
+

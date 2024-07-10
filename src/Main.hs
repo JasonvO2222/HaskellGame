@@ -29,7 +29,7 @@ main = do
 
    playIO (InWindow "Game" (400, 400) (0, 0))
           black --bg color
-          60 --fps
+          24 --fps
           state --state datastructure with all info
           view --state to IO picture method for screen
           input --method that handles user input
