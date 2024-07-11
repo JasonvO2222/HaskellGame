@@ -27,8 +27,8 @@ merge y (x, t) = ((x, y), t)
 
 listBarriers :: Raster -> [Tile]
 listBarriers [] = []
-listBarriers (x:xs) = filter filt (x ++ listBarriers xs)
+listBarriers (x:xs) = filter isB (x ++ listBarriers xs)
 
-filt :: Tile -> Bool
-filt t | (snd t) == Barrier = True
+isB :: Tile -> Bool
+isB t | (snd t) == Barrier = True
        | otherwise = False

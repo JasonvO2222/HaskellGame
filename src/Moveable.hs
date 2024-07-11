@@ -27,7 +27,7 @@ removeDir m d = m {dirs = filt}
              filt = filter (/= d) ds
 
 
-updateVector :: Moveable -> Vector -- extract information
+updateVector :: Moveable -> Vector -- bring together all other methods (checkSpeed, Gravity, Controls) & extract information from object
 updateVector m = checkMaxSpeed (maxSpeed m) (addGravity (iterateDirs (acceleration m) (vector m) (dirs m)))
 
 iterateDirs :: Float -> Vector -> [Dir] -> Vector -- iterate move over each Dir and fold results
@@ -59,9 +59,11 @@ checkSpeed max f | f > max = max
 addGravity :: Vector -> Vector
 addGravity (x, y) = (x, y + 0.2)
 
+-- not used, might delete later
 moveObject :: Point -> Vector -> Point
 moveObject (x, y) (a, b) = (x + a, y + b)
 
+-- TL: topLeft, TR: topRight.....
 getTLTRBLBR :: Point -> ((Point, CornerT), (Point, CornerT), (Point, CornerT), (Point, CornerT))
 getTLTRBLBR (x, y) = (((x - 0.5, y - 0.5), TL), ((x + 0.5, y - 0.5), TR), ((x - 0.5, y + 0.5), BL), ((x + 0.5, y + 0.5), BR))
 
