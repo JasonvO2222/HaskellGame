@@ -24,18 +24,19 @@ updatePlayer :: GameState -> Raster -> Moveable -> IO (Moveable)
 updatePlayer gstate r player = do
 
     -- IGNORE!! (not implemented yet) first check overlap with static types and other moveables for each step along the vector
-    
+
     -- check wether entity is on the floor and update player info
     let corners = checkCorners r (getTLTRBLBR (point player))
     let onfloor = isOnFloor corners
-    let playerN = player { onFloor = onfloor}
+    let corCount = length corners
+    let playerN = player { onFloor = onfloor, corners = corCount}
 
 
     let updatedVector = updateVector playerN
     let (x, y) = updatedVector
 
     --find step vector based on set length
-    let steps = findFactor (sqrt(x*x + y*y))
+    let steps = findFactor (sqrt (x*x + y*y))
     let step = findStepVector steps (x, y)
 
     --calculate corrected vector and new point
@@ -57,7 +58,7 @@ findStepVector steps (x, y) = (x * factor, y * factor)
 
 findFactor :: Float -> Float
 findFactor 0 = 1
-findFactor f = iF(ceiling (f / 0.2))
+findFactor f = iF (ceiling (f / 0.2))
 
 
 
@@ -72,12 +73,12 @@ calcVectorPoint gstate step steps = do
     let (x, y) = point (player gstate)
     -- create list of point where the object will move
     let l = [1 .. steps]
-    let lm = map (\a -> (dx * a, dy * a)) l 
+    let lm = map (\a -> (dx * a, dy * a)) l
     let newPointList = map (\(b, c) -> (b + x, c + y)) lm
 
     -- iterate through points
     (newStep, newPoint) <- iterateV (x, y) newPointList gstate step
-    
+
     -- remove the factor (multiply by amount of steps the vector was split by) so we get the full movement vector again
     let newVector = (steps * (fst newStep), steps * (snd newStep))
     return (newVector, newPoint)
@@ -87,7 +88,7 @@ iterateV lastP [] _ step = do return (step, lastP)
 iterateV lastP l@(x:xs) gstate step = do
 
     -- check if corners hit anything
-    let corners = getTLTRBLBR x 
+    let corners = getTLTRBLBR x
     let hitCorners = checkCorners (raster gstate) (selectCorners step corners)
     let oFB = isOnFloor hitCorners
 
@@ -104,21 +105,21 @@ iterateHelper oFB l (x, lastP) xs gstate step hitCorners | null hitCorners = ite
 
 -- we can differentiate between what kind of collision we have by the amount of corners are hit (hit 3, 2, or 1 corners) (see [a,b,c], [a,b] and [a])
 handleHit :: Bool -> Point -> [CornerT] -> Vector -> [(Float, Float)] -> Float -> Point -> ([(Float, Float)], Vector)
-handleHit oFB lp [a, b, c] (x, y) xs l _ = (updateList lp newV l, newV) -- hit a corner of barriers (bounce back on all axes)
-                     where
-                        newV = (-0.20 * x, -0.20 * y)
-handleHit oFB lp [a, b] (x, y) xs l oP | (a == TL && b == TR) || (a == BL && b == BR) = (updateList lp (x, y * (-0.20)) l, (x, y * (-0.20))) -- one case for collision in y direction
-                                | otherwise                                    = (updateList lp (x * (-0.20), y) l, (x * (-0.20), y)) -- and for x direction
-handleHit oFB lp [a] (x, y) xs l oP | x /= 0 && y /= 0 = (updateList lp (greatestStays (x, y)) l, greatestStays (x, y)) -- hit a single barrier from an angle, the direction with the most speed stays (maybe not a good idea)
-                             | x /= 0 = (updateList lp (x * (-0.20), y) l, (x * (-0.20), y)) -- unless ofc the object is moving in only on direction
-                             | y /= 0 = (updateList lp (x, (-0.20) *y) l, (x, (-0.20) * y))
-handleHit oFB lp [a, b] (x, y) xs l oP | (a == BL && b == BR) && y /= 0 = let vec = helpHandleHit (x, y) in (updateList oP vec l, vec) -- when on the floor, stop all movement (stick landing)
-                                       | (a == TL && b == TR)           = let vec = (x, y * (-0.20))     in (updateList lp vec l, vec) -- one case for top collision in y direction 
-                                       | otherwise                      = let vec = (x * (-0.20), y)     in (updateList lp vec l, vec) -- and for x direction
-handleHit oFB lp [a] (x, y) xs l oP | x /= 0 && y /= 0               = let vec = (greatestStays (x, y)) in (updateList oP vec l, vec) -- hit a single barrier from an angle, the direction with the most speed stays (maybe not a good idea)
-                                    | x /= 0                         = let vec = (x * (-0.20), y)       in (updateList lp vec l, vec) -- unless ofc the object is moving in only on direction
-                                    | y /= 0                         = let vec = (0, 0)                 in (updateList oP vec l, vec) -- stick landing
-                                    | otherwise                      = let vec = (x, y)                 in (updateList oP vec l, vec)          
+handleHit oFB lp [a, b, c] (x, y) xs l oP | (b == BL && c == BR) = let vec = (-0.20 * x, 0)         in (updateList lp vec l, vec) -- hit a corner of barriers (bounce back on all axes)
+                                          | otherwise            = let vec = (-0.20 * x,-0.20 * y)  in (updateList (oP) vec l, vec)
+handleHit oFB lp [a, b] (x, y) xs l oP    | (a == BL && b == BR) = let vec = (x, 0)                 in (updateList (roundy oP) vec l, vec)
+                                          | (a == TL && b == TR) = let vec = (x,-0.20 * y)          in (updateList lp vec l, vec)
+                                          | otherwise            = let vec = (-0.20 * x, y)         in (updateList lp vec l, vec)
+handleHit oFB lp [a] (x, y) xs l oP       | y == 0 && not oFB    = let vec = (0, y)                 in (updateList lp vec l, vec)
+                                          | x == 0               = let vec = (x, 0)                 in (updateList (roundy oP) vec l, vec)
+                                          | otherwise            = let vec = (0, 0)                 in (updateList (roundy oP) vec l, vec)
+
+
+--handleHit oFB lp [a, b] (x, y) xs l oP | (a == TL && b == TR) || (a == BL && b == BR) = (updateList lp (x, y * (-0.20)) l, (x, y * (-0.20))) -- one case for collision in y direction
+--                                       | otherwise                                    = (updateList lp (x * (-0.20), y) l, (x * (-0.20), y)) -- and for x direction
+--handleHit oFB lp [a] (x, y) xs l oP | x /= 0 && y /= 0 = (updateList lp (greatestStays (x, y)) l, greatestStays (x, y)) -- hit a single barrier from an angle, the direction with the most speed stays (maybe not a good idea)
+--                             | x /= 0 = (updateList lp (x * (-0.20), y) l, (x * (-0.20), y)) -- unless ofc the object is moving in only on direction
+--                             | y /= 0 = (updateList lp (x, (-0.20) *y) l, (x, (-0.20) * y))
 
 helpHandleHit :: Vector -> Vector
 helpHandleHit (x, y) | y /= 0 = (0, 0)
@@ -174,3 +175,5 @@ isOnFloor [a]       | (a == BL || a == BR) = True
 isOnFloor _ = False
 
 
+roundy :: Point -> Point
+roundy (x, y) = (x, iF (round y))

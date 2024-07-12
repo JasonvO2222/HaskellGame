@@ -18,18 +18,20 @@ main = do
 
    block <- loadBMP "src/sprites/Idle.bmp"
    playerFrog <- loadBMP "src/sprites/Jump (32x32).bmp"
-   let pictures = [block, playerFrog]
+   background <- loadBMP "src/sprites/Green.bmp"
+   let pictures = [block, playerFrog, background]
 
-   cage <- readFile "src/levels/cage.txt"
+   cage <- readFile "src/levels/cage2.txt"
    let raster = Grid.makeRaster (lines cage)
-   let player = makeMoveable (4, 4) 1.6 Player 2.5
+   let rl = iF (length raster)
+   let player = makeMoveable (rl / 2 , rl / 2) 0.15 0.5 Player 0.3 0.5
 
    let state = State.initState pictures raster player (listBarriers raster)
 
 
    playIO (InWindow "Game" (400, 400) (0, 0))
           black --bg color
-          24 --fps
+          60 --fps
           state --state datastructure with all info
           view --state to IO picture method for screen
           input --method that handles user input

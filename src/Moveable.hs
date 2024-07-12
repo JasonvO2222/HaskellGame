@@ -7,15 +7,19 @@ data ObjType = Player | Other deriving (Show, Eq)
 data CornerT = TL | TR | BL | BR deriving (Show, Eq)
 
 data Moveable = Moveable { point :: Point,
-                           acceleration :: Float,
+                           accX :: Float,
+                           accY :: Float,
                            dirs :: [Dir],
                            objtype :: ObjType,
                            vector :: Vector,
-                           maxSpeed :: Float,
-                           onFloor :: Bool}
+                           maxSpeedX :: Float,
+                           maxSpeedY :: Float,
+                           onFloor :: Bool,
+                           corners :: Int -- for testing purposes
+                           }
 
-makeMoveable :: Point -> Float -> ObjType -> Float -> Moveable
-makeMoveable p a t max = Moveable {point = p, acceleration = a, objtype = t, dirs = [], vector = (0, 0), maxSpeed = max, onFloor = False} 
+makeMoveable :: Point -> Float -> Float -> ObjType -> Float -> Float -> Moveable
+makeMoveable p accx accy t maxX maxY = Moveable {point = p, accX = accx, accY = accy, objtype = t, dirs = [], vector = (0, 0), maxSpeedX = maxX, maxSpeedY = maxY, onFloor = False, corners = 0} 
 
 
 addDir :: Moveable -> Dir -> Moveable
@@ -32,22 +36,22 @@ updateVector :: Moveable -> Vector -- bring together all other methods (checkSpe
 updateVector m = checkMaxSpeed mSpeed (addGravity onfloor (iterateDirs onfloor acc vec (dirs m)))
              where
                 onfloor = onFloor m
-                mSpeed = maxSpeed m
-                acc = acceleration m
+                mSpeed = (maxSpeedX m, maxSpeedY m)
+                acc = (accX m, accY m)
                 vec = vector m
 
-iterateDirs :: Bool -> Float -> Vector -> [Dir] -> Vector -- iterate move over each Dir and fold results
-iterateDirs b a v ks = foldl (newVec a) v ks -- for testing remove later
+iterateDirs :: Bool -> (Float, Float) -> Vector -> [Dir] -> Vector -- iterate move over each Dir and fold results
+--iterateDirs b a v ks = foldl (newVec a) v ks -- for testing remove later
 iterateDirs b a v ks | b = foldl (newVec a) v ks
                      | otherwise = v
 
-newVec :: Float -> Vector -> Dir -> Vector -- move in direction
-newVec a v k | k == UpD = (x, y - a)
-             | k == DownD = (x, y + a)
-             | k == RightD = (x + a, y)
-             | k == LeftD = (x - a, y)
-             | k == BrakeD = (brake a x, brake a y)
-             | otherwise = (x, y)
+newVec :: (Float, Float) -> Vector -> Dir -> Vector -- move in direction
+newVec (accx, accy) v k | k == UpD = (x, y - accy)
+                        | k == DownD = (x, y + accy)
+                        | k == RightD = (x + accx, y)
+                        | k == LeftD = (x - accx, y)
+                        | k == BrakeD = (brake accx x, brake accy y)
+                        | otherwise = (x, y)
     where
         (x, y) = v
 
@@ -56,8 +60,8 @@ brake a f | f > a = f - a
           | f < -(a) = f + a
           | otherwise = 0
 
-checkMaxSpeed :: Float -> Vector -> Vector
-checkMaxSpeed max (x, y) = (checkSpeed max x, checkSpeed max y)
+checkMaxSpeed :: (Float, Float) -> Vector -> Vector
+checkMaxSpeed (maxX, maxY) (x, y) = (checkSpeed maxX x, checkSpeed maxY y)
 
 checkSpeed :: Float -> Float -> Float
 checkSpeed max f | f > max = max
@@ -65,8 +69,7 @@ checkSpeed max f | f > max = max
                  | otherwise = f
 
 addGravity :: Bool -> Vector -> Vector
---addGravity b (x, y) = (x, y + 0.2) -- for testing, remove later
-addGravity b (x, y) | not b = (x, y + 0.2)
+addGravity b (x, y) | not b = (x, y + 0.040)
                     | otherwise = (x, y)
 
 -- not used, might delete later
@@ -75,5 +78,5 @@ moveObject (x, y) (a, b) = (x + a, y + b)
 
 -- TL: topLeft, TR: topRight.....
 getTLTRBLBR :: Point -> [(Point, CornerT)]
-getTLTRBLBR (x, y) = [((x - 0.5, y - 0.5), TL), ((x + 0.5, y - 0.5), TR), ((x - 0.5, y + 0.5), BL), ((x + 0.5, y + 0.5), BR)]
+getTLTRBLBR (x, y) = [((x - 0.5, y - 0.5), TL), ((x + 0.5, y - 0.5), TR), ((x - 0.5, y + 0.55), BL), ((x + 0.5, y + 0.55), BR)]
 
