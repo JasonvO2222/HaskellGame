@@ -9,7 +9,7 @@ different top speeds for axes
 jump mechanics
 double jump??
 
-standing on ground detection
+standing on ground detection --
 traction when on ground
 
 on wall detection

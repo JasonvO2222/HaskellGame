@@ -11,10 +11,11 @@ data Moveable = Moveable { point :: Point,
                            dirs :: [Dir],
                            objtype :: ObjType,
                            vector :: Vector,
-                           maxSpeed :: Float}
+                           maxSpeed :: Float,
+                           onFloor :: Bool}
 
 makeMoveable :: Point -> Float -> ObjType -> Float -> Moveable
-makeMoveable p a t max = Moveable {point = p, acceleration = a, objtype = t, dirs = [], vector = (0, 0), maxSpeed = max} 
+makeMoveable p a t max = Moveable {point = p, acceleration = a, objtype = t, dirs = [], vector = (0, 0), maxSpeed = max, onFloor = False} 
 
 
 addDir :: Moveable -> Dir -> Moveable
@@ -28,10 +29,16 @@ removeDir m d = m {dirs = filt}
 
 
 updateVector :: Moveable -> Vector -- bring together all other methods (checkSpeed, Gravity, Controls) & extract information from object
-updateVector m = checkMaxSpeed (maxSpeed m) (addGravity (iterateDirs (acceleration m) (vector m) (dirs m)))
+updateVector m = checkMaxSpeed mSpeed (addGravity onfloor (iterateDirs onfloor acc vec (dirs m)))
+             where
+                onfloor = onFloor m
+                mSpeed = maxSpeed m
+                acc = acceleration m
+                vec = vector m
 
-iterateDirs :: Float -> Vector -> [Dir] -> Vector -- iterate move over each Dir and fold results
-iterateDirs a p ks = foldl (newVec a) p ks
+iterateDirs :: Bool -> Float -> Vector -> [Dir] -> Vector -- iterate move over each Dir and fold results
+iterateDirs b a v ks | b = foldl (newVec a) v ks
+                     | otherwise = v
 
 newVec :: Float -> Vector -> Dir -> Vector -- move in direction
 newVec a v k | k == UpD = (x, y - a)
@@ -56,14 +63,15 @@ checkSpeed max f | f > max = max
                  | f < -(max) = -(max)
                  | otherwise = f
 
-addGravity :: Vector -> Vector
-addGravity (x, y) = (x, y + 0.2)
+addGravity :: Bool -> Vector -> Vector
+addGravity b (x, y) | not b = (x, y + 0.2)
+                    | otherwise = (x, y)
 
 -- not used, might delete later
 moveObject :: Point -> Vector -> Point
 moveObject (x, y) (a, b) = (x + a, y + b)
 
 -- TL: topLeft, TR: topRight.....
-getTLTRBLBR :: Point -> ((Point, CornerT), (Point, CornerT), (Point, CornerT), (Point, CornerT))
-getTLTRBLBR (x, y) = (((x - 0.5, y - 0.5), TL), ((x + 0.5, y - 0.5), TR), ((x - 0.5, y + 0.5), BL), ((x + 0.5, y + 0.5), BR))
+getTLTRBLBR :: Point -> [(Point, CornerT)]
+getTLTRBLBR (x, y) = [((x - 0.5, y - 0.5), TL), ((x + 0.5, y - 0.5), TR), ((x - 0.5, y + 0.5), BL), ((x + 0.5, y + 0.5), BR)]
 

@@ -24,7 +24,14 @@ updatePlayer :: GameState -> Raster -> Moveable -> IO (Moveable)
 updatePlayer gstate r player = do
 
     -- IGNORE!! (not implemented yet) first check overlap with static types and other moveables for each step along the vector
-    let updatedVector = updateVector player
+    
+    -- check wether entity is on the floor and update player info
+    let corners = checkCorners r (getTLTRBLBR (point player))
+    let onfloor = isOnFloor corners
+    let playerN = player { onFloor = onfloor}
+
+
+    let updatedVector = updateVector playerN
     let (x, y) = updatedVector
 
     --find step vector based on set length
@@ -34,7 +41,14 @@ updatePlayer gstate r player = do
     --calculate corrected vector and new point
     (correctVector, newPoint) <- calcVectorPoint gstate step steps
 
-    return (player {vector = correctVector, point = newPoint})
+    return (playerN {vector = correctVector, point = newPoint})
+
+
+
+
+
+
+-- DIVIDE VECTOR IN SMALLER PARTS
 
 findStepVector :: Float -> Vector -> Vector
 findStepVector steps (x, y) = (x * factor, y * factor)
@@ -44,6 +58,12 @@ findStepVector steps (x, y) = (x * factor, y * factor)
 findFactor :: Float -> Float
 findFactor 0 = 1
 findFactor f = iF(ceiling (f / 0.2))
+
+
+
+
+
+-- RENDER MOVEMENT WITHIN TICK
 
 calcVectorPoint :: GameState -> Vector -> Float -> IO (Vector, Point)
 calcVectorPoint gstate step steps = do
@@ -111,8 +131,8 @@ checkCorners r ps = map snd (filter (\(p, c) -> checkRaster (round (fst p), roun
                 where
                     checkRaster (column, row) = isB (r!!row!!column)
 
-selectCorners :: Vector -> ((Point, CornerT), (Point, CornerT), (Point, CornerT), (Point, CornerT)) -> [(Point, CornerT)]
-selectCorners (x, y) (tl, tr, bl, br) | x > 0 && y > 0 = [tr, bl, br]
+selectCorners :: Vector -> [(Point, CornerT)] -> [(Point, CornerT)]
+selectCorners (x, y) [tl, tr, bl, br] | x > 0 && y > 0 = [tr, bl, br]
                                       | x < 0 && y < 0 = [tl, tr, bl]
                                       | x < 0 && y > 0 = [tl, bl, br]
                                       | x > 0 && y < 0 = [tl, tr, br]
@@ -123,9 +143,22 @@ selectCorners (x, y) (tl, tr, bl, br) | x > 0 && y > 0 = [tr, bl, br]
                                       | otherwise = []
 
 
+
+
+
+-- GENERAL HELPER FUNCTIONS
+
 -- VERY USEFUL int to float method
 iF :: Int -> Float
 iF i = fromIntegral i :: Float
 
+isOnFloor :: [CornerT] -> Bool
+isOnFloor [a, b, c] | (b == BL && c == BR) = True
+                  | otherwise = False
+isOnFloor [a, b]    | (a == BL && b == BR) = True
+                  | otherwise = False
+isOnFloor [a]       | (a == BL || a == BR) = True
+                  | otherwise = False
+isOnFloor _ = False
 
 
