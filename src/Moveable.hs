@@ -37,6 +37,7 @@ updateVector m = checkMaxSpeed mSpeed (addGravity onfloor (iterateDirs onfloor a
                 vec = vector m
 
 iterateDirs :: Bool -> Float -> Vector -> [Dir] -> Vector -- iterate move over each Dir and fold results
+iterateDirs b a v ks = foldl (newVec a) v ks -- for testing remove later
 iterateDirs b a v ks | b = foldl (newVec a) v ks
                      | otherwise = v
 
@@ -64,6 +65,7 @@ checkSpeed max f | f > max = max
                  | otherwise = f
 
 addGravity :: Bool -> Vector -> Vector
+--addGravity b (x, y) = (x, y + 0.2) -- for testing, remove later
 addGravity b (x, y) | not b = (x, y + 0.2)
                     | otherwise = (x, y)
 
