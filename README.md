@@ -2,14 +2,13 @@
 
 TODO:
 
-bitmap texture as a callable property of data Tile
+bitmap texture as a callable property of data Tile (toch anders, kijkt gwn naar tiletype en kiest daarop gebasseerd een picture)
 
-different top speeds for axes
 
 jump mechanics
 double jump??
 
-standing on ground detection --
+
 traction when on ground
 
 on wall detection
