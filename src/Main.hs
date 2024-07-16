@@ -21,15 +21,16 @@ main = do
    background <- loadBMP "src/sprites/Green.bmp"
    let pictures = [block, playerFrog, background]
 
-   cage <- readFile "src/levels/cage2.txt"
+   cage <- readFile "src/levels/cage.txt"
+   let screenSize = 1000 :: Int
    let raster = Grid.makeRaster (lines cage)
    let rl = iF (length raster)
    let player = makeMoveable (rl / 2 , rl / 2) 0.15 0.5 Player 0.3 0.5
 
-   let state = State.initState pictures raster player (listBarriers raster)
+   let state = State.initState pictures raster player (listBarriers raster) (iF screenSize)
 
 
-   playIO (InWindow "Game" (400, 400) (0, 0))
+   playIO (InWindow "Game" (screenSize, screenSize) (0, 0))
           black --bg color
           60 --fps
           state --state datastructure with all info
