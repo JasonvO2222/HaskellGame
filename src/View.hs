@@ -26,11 +26,11 @@ view gstate = do
    let background = generateBackGround blockSize barrierScale backgroundScale (raster gstate) sprite offset
 
    let getPlayer = viewPlayer blockSize playerScale ((sprite)!!1) (player gstate) offset
-   --let onF = viewoFB blockSize sizefac (corners (player gstate)) ((sprite)!!0) (player gstate)
-   --let oCS = viewoCS blockSize sizefac (corners (player gstate)) ((sprite)!!0) (player gstate)
+   let onF = viewoFB blockSize barrierScale (corners (player gstate)) ((sprite)!!0) (player gstate) offset
+   let oCS = viewoCS blockSize barrierScale (corners (player gstate)) ((sprite)!!0) (player gstate) offset
    
 
-   return $ pictures (background ++ [getPlayer]) -- returns list of pictures
+   return $ pictures (background ++ onF ++ oCS ++ [getPlayer]) -- returns list of pictures
 
 
 viewPlayer :: Float -> Float -> Picture -> Moveable -> Float -> Picture
@@ -52,11 +52,11 @@ generateRow blockSize scaleB scaleBG (t:ts) p offset | snd t == Barrier = transl
 
 
 --for testing
---viewoFB :: Float -> Float -> Int -> Picture -> Moveable -> [Picture]
---viewoFB fac scale 0 p m = []
---viewoFB fac scale c p m | (onFloor m) = (translateP fac p (fromIntegral c :: Float, 1) (scale, scale)) : (viewoFB fac scale (c-1) p m)
---                        | otherwise = []
+viewoFB :: Float -> Float -> Int -> Picture -> Moveable -> Float -> [Picture]
+viewoFB fac scale 0 p m offset = []
+viewoFB fac scale c p m offset | (onFloor m) = (translateP fac p (fromIntegral c :: Float, 1) (scale, scale) offset) : (viewoFB fac scale (c-1) p m offset)
+                               | otherwise = []
 
---viewoCS :: Float -> Float -> Int -> Picture -> Moveable -> [Picture]
---viewoCS fac scale  0 p m = []
---viewoCS fac scale c p m = (translateP fac p (fromIntegral c :: Float, 2) (scale, scale)) : (viewoFB fac scale (c-1) p m)
+viewoCS :: Float -> Float -> Int -> Picture -> Moveable -> Float -> [Picture]
+viewoCS fac scale  0 p m offset = []
+viewoCS fac scale c p m offset  = (translateP fac p (fromIntegral c :: Float, 2) (scale, scale) offset) : (viewoFB fac scale (c-1) p m offset)
