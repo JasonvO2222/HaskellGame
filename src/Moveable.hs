@@ -69,7 +69,7 @@ checkSpeed max f | f > max = max
                  | otherwise = f
 
 addGravity :: Bool -> Vector -> Vector
-addGravity b (x, y) | not b = (x, y + 0.040)
+addGravity b (x, y) | not b = (x, y + 0.005)
                     | otherwise = (x, y)
 
 -- not used, might delete later

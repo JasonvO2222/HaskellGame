@@ -58,7 +58,7 @@ findStepVector steps (x, y) = (x * factor, y * factor)
 
 findFactor :: Float -> Float
 findFactor 0 = 1
-findFactor f = iF (ceiling (f / 0.2))
+findFactor f = iF (ceiling (f / 0.5))
 
 
 

@@ -25,14 +25,14 @@ main = do
    let screenSize = 1000 :: Int
    let raster = Grid.makeRaster (lines cage)
    let rl = iF (length raster)
-   let player = makeMoveable (rl / 2 , rl / 2) 0.15 0.5 Player 0.3 0.5
+   let player = makeMoveable (rl / 2 , rl / 2) 0.05 0.3 Player 0.15 0.40
 
    let state = State.initState pictures raster player (listBarriers raster) (iF screenSize)
 
 
    playIO (InWindow "Game" (screenSize, screenSize) (0, 0))
           black --bg color
-          60 --fps
+          144 --fps
           state --state datastructure with all info
           view --state to IO picture method for screen
           input --method that handles user input
